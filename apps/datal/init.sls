@@ -1,4 +1,3 @@
-{% set environment = salt['pillar.get']('environment', None) %}
 {% set install_dir = salt['pillar.get']('application:install_dir', None) %}
 {% set user = pillar['system']['user'] %}
 {% set group = pillar['system']['group'] %}
@@ -9,9 +8,6 @@ include:
   - core.uwsgi
   - core.memcached
   - core.git
-  {% if environment == 'demo' or environment == 'staging' or environment == 'test' or environment == 'prod' %}
-  - core.github_bot
-  {% endif %}
   - core.bower
   - apps.datal.uwsgi.init
   - apps.datal.supervisor.init
@@ -33,14 +29,6 @@ pillow_datal_deps:
     - pkgs:
       - libjpeg-dev
 
-{% if environment == 'demo' or environment == 'staging' or environment == 'test' %}
-clean_caches:
-  cmd.run:
-    - names:
-      - echo 'flush_all' | nc localhost 11211
-      - redis-cli FLUSHALL
-{% endif %}
-
 # Set directory environment owner
 directory_structure:
   file.directory:
@@ -51,29 +39,6 @@ directory_structure:
     - recurse:
       - user
 
-{% if environment == 'dev' %}
-local_hosts:
-  host.present:
-    - ip: 127.0.0.1
-    - names:
-      - workspace.dev
-      - microsites.dev
-      - api.dev
-      - admin.dev
-      - datastore.dev
-{% endif %}
-
-# Bien feo esto, mejoralo!
-{% if environment == 'prod' %}
-local_hosts:
-  host.present:
-    - ip: 127.0.0.1
-    - names:
-      - workspace.local
-      - microsites.local
-{% endif %}
-
-{% if environment == 'demo' or environment == 'staging' or environment == 'test' or environment == 'prod' %}
 app_directory_structure:
   file.directory:
      - name: {{install_dir}}{{ pillar['application']['path'] }}
@@ -93,26 +58,6 @@ datal_code:
     - require:
        - user: {{user}}
        - group: {{group }}
-       - ssh_known_hosts: github.com
-       - file: {{ pillar['system']['home'] }}/.ssh/id_rsa.pub
-       - file: {{ pillar['system']['home'] }}/.ssh/id_rsa
-
-junar_code:
-  git.latest:
-    - name: {{ pillar['application']['git']['junar_repo'] }}
-    - rev: {{ pillar['application']['git']['branch'] }}
-    - target: {{install_dir}}{{ pillar['application']['path'] }}/plugins
-    - force_checkout: True
-    - force: True
-    - force_reset: True
-    - user: {{user}}
-    - require:
-       - user: {{user}}
-       - group: {{group }}
-       - ssh_known_hosts: github.com
-       - file: {{ pillar['system']['home'] }}/.ssh/id_rsa.pub
-       - file: {{ pillar['system']['home'] }}/.ssh/id_rsa
-{% endif %}
 
 # Create static files directory
 {{install_dir}}{{ pillar['application']['statics_dir'] }}:
@@ -214,7 +159,6 @@ migrate_db:
       - PATH="{{install_dir}}{{ pillar['virtualenv']['path'] }}/bin/:$PATH"; python manage.py migrate --settings=core.settings
       - PATH="{{install_dir}}{{ pillar['virtualenv']['path'] }}/bin/:$PATH"; python manage.py migrate --settings=admin.settings
 
-{% if environment != 'prod' %}
 fixtures:
   cmd.run:
     - user: {{ user }}
@@ -223,27 +167,6 @@ fixtures:
     - names:
       - PATH="{{install_dir}}{{ pillar['virtualenv']['path'] }}/bin/:$PATH"; python manage.py loaddata  core/fixtures/* --settings=core.settings
       - PATH="{{install_dir}}{{ pillar['virtualenv']['path'] }}/bin/:$PATH"; python manage.py loaddata  admin/fixtures/* --settings=admin.settings
-{% endif %}
-
-{% if environment == 'demo' or environment == 'staging' or environment == 'test' %}
-environment_fixtures:
-  cmd.run:
-    - user: {{ user }}
-    - group: {{ group }}
-    - cwd: {{install_dir}}{{ pillar['application']['path'] }}
-    - names:
-      - PATH="{{install_dir}}{{ pillar['virtualenv']['path'] }}/bin/:$PATH"; python manage.py loaddata  plugins/fixtures/{{ environment }}/* --settings=core.settings
-{% endif %}
-
-{% if environment != 'prod' %}
-plugins_fixtures:
-  cmd.run:
-    - user: {{ user }}
-    - group: {{ group }}
-    - cwd: {{install_dir}}{{ pillar['application']['path'] }}
-    - names:
-      - PATH="{{install_dir}}{{ pillar['virtualenv']['path'] }}/bin/:$PATH"; python manage.py loaddata  plugins/dashboards/fixtures/* --settings=core.settings
-{% endif %}
 
 cleanpython:
   cmd.run:
@@ -294,7 +217,6 @@ workspace_statics:
     - names:
       - PATH="{{install_dir}}{{ pillar['virtualenv']['path'] }}/bin/:$PATH"; python manage.py collectstatic --settings=workspace.settings --noinput
 
-{% if environment != 'dev' and environment != 'staging' %}
 core_sass:
   cmd.run:
     - user: {{ user }}
@@ -318,32 +240,12 @@ workspace_sass:
     - cwd: {{install_dir}}{{ pillar['application']['path'] }}
     - names:
       - PATH="{{install_dir}}{{ pillar['virtualenv']['path'] }}/bin/:$PATH"; python manage.py compilescss --settings=workspace.settings 
-{% endif %}
 
 /tmp/datal.log:
   file.managed:
     - user: {{ user }}
     - group: {{ group }}
     - mode: 777
-
-{% if environment != 'prod' %}
-reindex:
-  cmd.run:
-    - user: {{ user }}
-    - group: {{ group }}
-    - cwd: {{install_dir}}{{ pillar['application']['path'] }}
-    - names:
-      - PATH="{{install_dir}}{{ pillar['virtualenv']['path'] }}/bin/:$PATH"; python manage.py index --settings=workspace.settings --all --flush --debug
-
-log_activity:
-  cmd.run:
-    - user: {{ user }}
-    - group: {{ group }}
-    - cwd: {{install_dir}}{{ pillar['application']['path'] }}
-    - names:
-      - PATH="{{install_dir}}{{ pillar['virtualenv']['path'] }}/bin/:$PATH"; python manage.py log_activity --settings=workspace.settings
-
-{% endif %}
 
 uwsgi:
   service.running:

@@ -1,8 +1,8 @@
 # General settings
 system:
-  user: vagrant
-  group: vagrant
-  home: /home/vagrant
+  user: datal
+  group: datal
+  home: /home/datal
   # V8
   processors: 2
 
@@ -34,7 +34,7 @@ sentry_dns_workspace: ''
 sentry_dns_api: ''
 
 application:
-  install_dir: /home/vagrant/
+  install_dir: /home/datal/
   path: app
   cdn: 'datastore.dev:8888/resources/datal_cdn/'
   api_key: '576bba0dd5a27df9aaac12d1d7ec25c8411fe29e'
@@ -77,7 +77,7 @@ datastore:
   sftp:
     host: 'localhost'
     port: 22
-    user: vagrant
+    user: datal
     password: datal
     privateKey:
     passphrase:
