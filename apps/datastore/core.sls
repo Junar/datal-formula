@@ -18,7 +18,7 @@ datastore_site_enabled:
 # Create data store resources directory
 datastore_resources_dir:
   file.directory:
-    - name: {{ salt['user.info'](user).home }}/{{ pillar['datastore']['sftp']['remote_base_folder'] }}
+    - name: {{ pillar['system']['home'] }}/{{ pillar['datastore']['sftp']['remote_base_folder'] }}
     - user: {{ user }}
     - group: {{ group }}
     - mode: 755
@@ -26,7 +26,7 @@ datastore_resources_dir:
 
 datastore_resources_temp_dir:
   file.directory:
-    - name: {{ salt['user.info'](user).home }}/{{ pillar['datastore']['sftp']['remote_base_folder'] }}/{{ pillar['datastore']['temporary_bucket'] }}
+    - name: {{ pillar['system']['home'] }}/{{ pillar['datastore']['sftp']['remote_base_folder'] }}/{{ pillar['datastore']['temporary_bucket'] }}
     - user: {{ user }}
     - group: {{ group }}
     - mode: 755
@@ -34,7 +34,7 @@ datastore_resources_temp_dir:
 
 datastore_resources_base_dir:
   file.directory:
-    - name: {{ salt['user.info'](user).home }}/{{ pillar['datastore']['sftp']['remote_base_folder'] }}/{{ pillar['datastore']['bucket'] }}
+    - name: {{ pillar['system']['home'] }}/{{ pillar['datastore']['sftp']['remote_base_folder'] }}/{{ pillar['datastore']['bucket'] }}
     - user: {{ user }}
     - group: {{ group }}
     - mode: 755
@@ -43,12 +43,12 @@ datastore_resources_base_dir:
 root_bucket:
   file.symlink:
     - name: /{{ pillar['datastore']['bucket'] }}
-    - target: {{ salt['user.info'](user).home }}/{{ pillar['datastore']['sftp']['remote_base_folder'] }}/{{ pillar['datastore']['bucket'] }}
+    - target: {{ pillar['system']['home'] }}/{{ pillar['datastore']['sftp']['remote_base_folder'] }}/{{ pillar['datastore']['bucket'] }}
 
 temp_root_bucket:
   file.symlink:
     - name: /{{ pillar['datastore']['temporary_bucket'] }}
-    - target: {{ salt['user.info'](user).home }}/{{ pillar['datastore']['sftp']['remote_base_folder'] }}/{{ pillar['datastore']['temporary_bucket'] }}
+    - target: {{ pillar['system']['home'] }}/{{ pillar['datastore']['sftp']['remote_base_folder'] }}/{{ pillar['datastore']['temporary_bucket'] }}
 
 # For fixed uploaded file for theme
 {{ pillar['system']['home'] }}/{{ pillar['datastore']['sftp']['remote_base_folder'] }}/{{ pillar['datastore']['cdn_bucket'] }}/1:
