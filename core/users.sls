@@ -9,6 +9,8 @@ create_user:
     - fullname: {{ pillar['system']['user'] }}
     - shell: /bin/bash
     - home: {{ pillar['system']['home'] }}
+    - enforce_password: True
+    - password: {{ pillar['system']['user_password_hash'] }}
     - groups:
       - {{ pillar['system']['group'] }}
 
