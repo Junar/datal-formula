@@ -1,4 +1,2 @@
 nodejs:
-  pkg.installed:
-    - require:
-      - pkgrepo: nodejs
+  pkg.installed
