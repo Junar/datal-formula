@@ -1,8 +1,14 @@
+{% set distrib_codename = salt['grains.get']('lsb_distrib_codename', '') %}
+
 mysql:
   pkg.installed:
     - refresh: True
     - pkgs:
+      {% if distrib_codename == "xenial" %}
+      - mysql-server-5.7
+      {% else %}
       - mysql-server-5.5
+      {% endif %}
       - libmysqlclient-dev
       - python-mysqldb
 
