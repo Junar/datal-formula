@@ -82,6 +82,21 @@
        parent="{% if pillar['datastore']['use'] == 'sftp' %}SFTP{% else %}S3{% endif %}">
        <property name="bucketName" value="${datasets.bucketname}" /> 
     </bean>    
+
+    <bean id="dataSourceStorage"
+       scope="prototype"
+       parent="S3">
+       <property name="bucketName" value="${datasources.bucketname}" />
+    </bean>
+
+    <bean id="dataViewStorage"
+       scope="prototype"
+       parent="S3">
+       <property name="bucketName" value="${dataviews.bucketname}" />
+       <property name="urlTTL" value="${dataviews.urlTTL}" />
+    </bean>
+
+
     
     <bean id="tempStorage"
        parent="{% if pillar['datastore']['use'] == 'sftp' %}SFTP{% else %}S3{% endif %}">
