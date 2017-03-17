@@ -38,7 +38,7 @@ sentry_dns_api: ''
 application:
   git:
     branch: 'master'
-    datal_repo: https://github.com/datal-org/datal.git
+    datal_repo: https://github.com/Junar/datal.git
   install_dir: /home/datal/
   path: app
   cdn: 'datastore.dev:8888/resources/datal_cdn/'
